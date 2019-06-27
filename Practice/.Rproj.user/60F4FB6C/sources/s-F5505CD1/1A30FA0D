@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1561087002008.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2730174982",
+    "id" : "1A30FA0D",
+    "lastKnownWriteTime" : 1561089963,
+    "last_content_update" : 1561089963733,
+    "path" : "~/R/Practice/vectors.R",
+    "project_path" : "vectors.R",
+    "properties" : {
+        "cursorPosition" : "71,0",
+        "scrollLine" : "57",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
