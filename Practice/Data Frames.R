@@ -63,6 +63,14 @@ newdf <- merge(stats, mydf, by.x="Country.Code", by.y="codes")
 newdf
 head(newdf)
 stats(newdf)
-qplot(data = stats,x=Internet.users, y=Birth.rate, colour = mydf$region)
 
+#-------------------------visualizing two different data frames
+qplot(data = stats,x=Internet.users, y=Birth.rate, colour = mydf$region)
+install.packages("ggplot2")
+library("ggplot2")
+#---------------------------visualizing after adding two diff data frames
 qplot(data=newdf,x=Internet.users, y=Birth.rate, colour=region)
+
+#shapes
+qplot(data=newdf,x=Internet.users, y=Birth.rate, colour=region, 
+      size=2, shape = I(19), alpha=I(0.4), main = "Birth rate vs Internet users")
