@@ -1,0 +1,178 @@
+---
+title: "Production Plan"
+author: "Shivani Agarwal, Chaitali Sawant, Harshita , Jesse and Kyle"
+date: "11/25/2019"
+output: html_document
+---
+
+
+
+## R Markdown
+
+```{r setup, warning=FALSE, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library (magrittr, quietly = TRUE) #Used for pipes/dplyr
+library (dplyr, quietly = TRUE)
+library (ROI, quietly = TRUE)
+library (ROI.plugin.glpk, quietly = TRUE)
+library (ompr, quietly = TRUE)
+library (ompr.roi, quietly = TRUE)
+library (pander, quietly = TRUE)
+```
+
+
+
+```{r}
+
+BaseModel <- MIPModel() %>%
+  add_variable(s1, type = "continuous", lb = 2, ub = 4) %>% # lb =3 for 3 trailers and ub =4 in order to increase trailer to 4
+  add_variable(s2, type = "continuous",lb = 2, ub = 4) %>%
+  add_variable(s3, type = "continuous", lb = 2, ub = 4) %>%
+  add_variable(s4, type = "continuous", lb = 2, ub = 4) %>%
+  add_variable(s5, type = "continuous",lb = 2, ub = 4) %>%
+  add_variable(s6, type = "continuous", lb = 2, ub = 4) %>%
+  add_variable(s7, type = "continuous", lb = 2, ub = 4) %>%
+  
+  
+  set_objective(s1 + s2 + s3  +s4 + s5 +  s6 + s7, "max") %>% # no of trailers manufactured currently is 3
+  # s1, s2, s3 , s4 .. is the capacity of each station for manufacturing no of trailers
+ add_constraint( 2.22*s1 <= 9.18 ) %>% #station 1 trailers capacity
+  # 2.22 is planned time they should take to manufacture 1 trailer at station 1
+
+  add_constraint( 2.81*s2 <= 9.18 ) %>% #station 2 trailers capacity
+
+ add_constraint(2.58*s3 <= 9.18) %>% #station 3 trailers capacity
+
+ add_constraint(2.72*s4 <= 9.18) %>% #station 4 trailers capacity
+
+ add_constraint(2.56*s5 <= 9.18 ) %>% #station 5 trailers capacity
+
+ add_constraint(2.35*s6 <= 9.18 ) %>% #station 6 trailers capacity
+  
+ add_constraint(2.27*s7 <= 9.18 ) %>% #station 7 trailers capacity
+
+
+  solve_model(with_ROI(solver = "glpk"))
+
+  obj_val <- objective_value(BaseModel) # Objective Function
+  xs1 <- get_solution (BaseModel, s1) #no. of trailers produced in solution for station 1
+  xs1
+  xs2  <- get_solution (BaseModel, s2)#no. of trailers produced in solution for station 2
+  xs2
+  xs3  <- get_solution (BaseModel, s3)#no. of trailers produced in solution for station 3
+  xs3
+  xs4 <- get_solution (BaseModel, s4)#no. of trailers produced in solution for station 4
+  xs4
+  xs5  <- get_solution (BaseModel, s5)#no. of trailers produced in solution for station 5
+  xs5
+  xs6  <- get_solution (BaseModel, s6)#no. of trailers produced in solution for station 6
+  xs6
+  xs7 <- get_solution (BaseModel, s7)#no. of trailers produced in solution for station 7
+  xs7
+ obj_val 
+ BaseModel
+
+
+base_case_res <- cbind(
+                     get_solution (BaseModel, s1),
+                     get_solution (BaseModel, s2),
+                     get_solution (BaseModel, s3),
+                      get_solution (BaseModel, s4),
+                     get_solution (BaseModel, s5),
+                     get_solution (BaseModel, s6),
+                     get_solution (BaseModel, s7))
+colnames(base_case_res)<-list("s1", "s2", "s3", "s4", "s5","s6","s7")
+rownames(base_case_res)<-list("Base Case")
+
+pander(base_case_res,
+       caption="Base Case Production Plan")
+```
+
+
+
+```{r}
+result1 <-as.matrix(get_row_duals(BaseModel))
+dimnames(result1)<-list(c("s1", "s2", "s3","s4", "s5","s6","s7"), 
+                        c("Row Duals"))
+pander(result1,caption="Shadow Prices of Constrained Resources")
+```
+> if one more manhour is added to the resources then we can produce this much tp60 more.
+
+
+> Latest model with new changes
+
+```{r}
+
+BaseModel <- MIPModel() %>%
+  add_variable(s1, type = "continuous", lb = 0, ub = 5) %>% # lb =3 for 3 trailers and ub =4 in order to increase trailer to 4
+  add_variable(s2, type = "continuous",lb = 0, ub = 5) %>%
+  add_variable(s3, type = "continuous", lb = 0, ub = 5) %>%
+  add_variable(s4, type = "continuous", lb = 0, ub = 5) %>%
+  add_variable(s5, type = "continuous",lb = 0, ub = 5) %>%
+  add_variable(s6, type = "continuous", lb = 0, ub = 5) %>%
+  add_variable(s7, type = "continuous", lb = 0, ub = 5) %>%
+  
+  
+  set_objective(s1 + s2 + s3  +s4 + s5 +  s6 + s7, "max") %>% # no of trailers manufactured currently is 3
+  # s1, s2, s3 , s4 .. is the capacity of each station for manufacturing no of trailers
+ add_constraint( 2.21*s1 <= 9.18 ) %>% #station 1 trailers capacity
+  # 2.22 is planned time they should take to manufacture 1 trailer at station 1
+
+  add_constraint( 2.25*s2 <= 9.18 ) %>% #station 2 trailers capacity
+
+ add_constraint(2.28*s3 <= 9.18) %>% #station 3 trailers capacity
+
+ add_constraint(2.06*s4 <= 9.18) %>% #station 4 trailers capacity
+
+ add_constraint(1.69*s5 <= 9.18 ) %>% #station 5 trailers capacity
+
+ add_constraint(2.29*s6 <= 9.18 ) %>% #station 6 trailers capacity
+  
+ add_constraint(2.27*s7 <= 9.18 ) %>% #station 7 trailers capacity
+
+
+  solve_model(with_ROI(solver = "glpk"))
+
+  obj_val <- objective_value(BaseModel) # Objective Function
+  xs1 <- get_solution (BaseModel, s1) #no. of trailers produced in solution for station 1
+  xs1
+  xs2  <- get_solution (BaseModel, s2)#no. of trailers produced in solution for station 2
+  xs2
+  xs3  <- get_solution (BaseModel, s3)#no. of trailers produced in solution for station 3
+  xs3
+  xs4 <- get_solution (BaseModel, s4)#no. of trailers produced in solution for station 4
+  xs4
+  xs5  <- get_solution (BaseModel, s5)#no. of trailers produced in solution for station 5
+  xs5
+  xs6  <- get_solution (BaseModel, s6)#no. of trailers produced in solution for station 6
+  xs6
+  xs7 <- get_solution (BaseModel, s7)#no. of trailers produced in solution for station 7
+  xs7
+ 
+ obj_val 
+ BaseModel
+
+
+base_case_res <- cbind(
+                     get_solution (BaseModel, s1),
+                     get_solution (BaseModel, s2),
+                     get_solution (BaseModel, s3),
+                      get_solution (BaseModel, s4),
+                     get_solution (BaseModel, s5),
+                     get_solution (BaseModel, s6),
+                     get_solution (BaseModel, s7))
+colnames(base_case_res)<-list("s1", "s2", "s3", "s4", "s5","s6","s7")
+rownames(base_case_res)<-list("Modified Model")
+
+pander(base_case_res,
+       caption="Modified Production Plan")
+```
+
+
+```{r}
+result1 <-as.matrix(get_row_duals(BaseModel))
+dimnames(result1)<-list(c("s1", "s2", "s3","s4", "s5","s6","s7"), 
+                        c("Row Duals"))
+pander(result1,caption="Shadow Prices of Constrained Resources")
+```
+
